@@ -8,11 +8,11 @@ import { Redis } from '@upstash/redis';
 // Initialize the Redis client
 const redis = Redis.fromEnv();
 
-// Create a new rate limiter allowing 10 requests per 10 seconds
+// Create a new rate limiter with adjusted settings - increased window size but lower request count
 const ratelimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(10, '10 s'),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(5, '30 s'), // Reduced to 5 requests per 30 seconds
+  analytics: false, // Disable analytics to reduce overhead
   prefix: '@upstash/ratelimit',
 });
 
@@ -29,29 +29,27 @@ function formatMessages(messages: Message[]) {
 export async function POST(req: Request) {
     const startTime = performance.now();
     try {
-      console.log('🚀 Starting request processing...');
-
-      // Extract the client's IP address or another unique identifier
-      const clientIdentifier = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
-      console.log('🔍 Client IP:', clientIdentifier);
-
-      // Benchmark Redis rate limiting
-      const redisStart = performance.now();
-      const { success } = await ratelimit.limit(clientIdentifier || 'anonymous');
-      const redisTime = performance.now() - redisStart;
-      console.log(`⚡ Redis rate limiting took: ${redisTime.toFixed(2)}ms`);
-
-      if (!success) {
-        console.log('🚫 Rate limit exceeded');
-        return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+      // Skip detailed logging in production
+      if (process.env.NODE_ENV === 'production') {
+        console.log('Request started');
       }
 
-      // Benchmark request parsing
-      const parseStart = performance.now();
+      // Use a more efficient way to get client IP
+      const clientIdentifier = req.headers.get('x-forwarded-for')?.split(',')[0] || 'anonymous';
+
+      // Perform rate limiting only if not in development
+      if (process.env.NODE_ENV === 'production') {
+        const { success } = await ratelimit.limit(clientIdentifier);
+        if (!success) {
+          return NextResponse.json(
+            { error: 'Rate limit exceeded. Please try again later.' }, 
+            { status: 429 }
+          );
+        }
+      }
+
       const { messages, chatId } = await req.json();
       const conversationHistory = formatMessages(messages);
-      const parseTime = performance.now() - parseStart;
-      console.log(`📝 Request parsing took: ${parseTime.toFixed(2)}ms`);
 
       // Benchmark AI streaming setup
       const aiStart = performance.now();
