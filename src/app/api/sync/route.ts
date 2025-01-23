@@ -15,6 +15,7 @@ export async function POST(req: Request) {
       case 'addChat': {
         const chat = await prisma.chat.create({
           data: {
+            id: chatId,
             messages: {
               create: {
                 role,
@@ -100,6 +101,20 @@ export async function POST(req: Request) {
           }
         });
         return new Response('Message added', { status: 200 });
+      }
+
+      /**
+       * deleteChat:
+       * Deletes a chat and all its associated messages.
+       */
+      case 'deleteChat': {
+        if (!chatId) {
+          return new Response('chatId required', { status: 400 });
+        }
+        await prisma.chat.delete({
+          where: { id: chatId }
+        });
+        return new Response('Chat deleted', { status: 200 });
       }
 
       default:

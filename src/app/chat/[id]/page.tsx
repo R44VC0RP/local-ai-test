@@ -52,7 +52,12 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>('grok-2');
   const [streamingContent, setStreamingContent] = useState('');
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,6 +68,8 @@ export default function ChatPage() {
   }, [messages, streamingContent]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const loadChat = async () => {
       if (id && typeof id === 'string') {
         const chat = await getChat(id);
@@ -75,7 +82,16 @@ export default function ChatPage() {
       }
     };
     loadChat();
-  }, [id, router]);
+  }, [id, router, mounted]);
+
+  // Return a loading state while client-side hydration is happening
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

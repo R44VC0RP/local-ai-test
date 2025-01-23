@@ -24,13 +24,22 @@ export default function RootLayout({
     setMounted(true);
   }, []);
 
+  // Return a loading state or nothing while client-side hydration is happening
   if (!mounted) {
-    return null;
+    return (
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${jetBrainsMono.variable} antialiased`}>
+          <div className="flex h-screen items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        </body>
+      </html>
+    );
   }
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${jetBrainsMono.variable} antialiased`}>
+      <body className={`${jetBrainsMono.variable} antialiased`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
