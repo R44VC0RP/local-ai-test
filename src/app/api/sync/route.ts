@@ -111,6 +111,11 @@ export async function POST(req: Request) {
         if (!chatId) {
           return new Response('chatId required', { status: 400 });
         }
+        // First delete all messages for this chat
+        await prisma.message.deleteMany({
+          where: { chatId }
+        });
+        // Then delete the chat itself
         await prisma.chat.delete({
           where: { id: chatId }
         });

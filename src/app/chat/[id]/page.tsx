@@ -163,7 +163,7 @@ export default function ChatPage() {
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1 px-4">
         <div className="max-w-3xl mx-auto py-6 space-y-6">
-          {messages.map((message) => (
+          {messages.filter(message => message.content !== "NEWMESSAGE").map((message) => (
             <div
               key={message.id}
               className={`flex items-start gap-2 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}

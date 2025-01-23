@@ -8,7 +8,7 @@ import "./globals.css";
 import Image from "next/image";
 import { JetBrains_Mono } from 'next/font/google';
 
-const jetBrainsMono = JetBrains_Mono({ 
+const jetBrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
 });
@@ -40,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${jetBrainsMono.variable} antialiased`} suppressHydrationWarning>
+        {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" async /> */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

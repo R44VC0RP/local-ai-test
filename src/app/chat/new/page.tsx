@@ -16,7 +16,7 @@ export default function NewChatPage() {
 
       try {
         // Create a new chat with an initial welcome message
-        const { chatId } = await addChat('assistant', 'Hello! How can I help you today?');
+        const { chatId } = await addChat('assistant', 'NEWMESSAGE');
         // Redirect to the new chat
         router.push(`/chat/${chatId}`);
       } catch (error) {

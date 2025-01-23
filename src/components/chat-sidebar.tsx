@@ -26,10 +26,10 @@ export function ChatSidebar() {
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
         .map(async (chat) => {
           const messages = await getMessagesByChatId(chat.id!);
-          const firstMessage = messages[0];
-          // Use first few words of first message as title, or a default if no messages
-          const title = firstMessage 
-            ? firstMessage.content.split(' ').slice(0, 5).join(' ') + '...'
+          const secondMessage = messages[1];
+          // Use first few words of second message as title if it exists, otherwise default to New Chat
+          const title = secondMessage
+            ? secondMessage.content.split(' ').slice(0, 5).join(' ') + '...'
             : 'New Chat';
           
           return {
